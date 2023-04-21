@@ -1,5 +1,6 @@
 package com.assessment.fileaggregateconsumer.consumer;
 
+import com.assessment.fileaggregateconsumer.model.SalesFileInformation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,8 @@ public class FilesSalesConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(FilesSalesConsumer.class);
 
+    private final ObjectMapper objectMapper;
+
     @Value("${kafka.topics.file-aggregation}")
     private String topicName;
 
@@ -22,7 +25,8 @@ public class FilesSalesConsumer {
     private final SimpMessagingTemplate simpleMessagingTemplate;
 
     @Autowired
-    FilesSalesConsumer(SimpMessagingTemplate simpleMessagingTemplate){
+    FilesSalesConsumer(ObjectMapper objectMapper, SimpMessagingTemplate simpleMessagingTemplate){
+        this.objectMapper = objectMapper;
         this.simpleMessagingTemplate = simpleMessagingTemplate;
     }
 
@@ -32,7 +36,9 @@ public class FilesSalesConsumer {
         try {
             LOG.info("Message context: {}", message);
             LOG.info("Sending message to client using websocket");
-            simpleMessagingTemplate.convertAndSend(socketDestination, message);
+            SalesFileInformation salesFileInformation = objectMapper.readValue(message, SalesFileInformation.class);
+
+            simpleMessagingTemplate.convertAndSend(socketDestination, objectMapper.writeValueAsString(salesFileInformation));
             LOG.info("Successfully sending the message to client");
         } catch (Exception e) {
             LOG.warn("Failed to read message context due to error: {}", e.getMessage());
