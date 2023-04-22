@@ -13,7 +13,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebsocketConfiguration implements WebSocketMessageBrokerConfigurer {
 
 
-    private @Value("${socket.destination.sales}") String salesWebSocketDestination;
+    private @Value("${socket.simplebroker.destination}") String salesWebSocketDestination;
 
     private @Value("${socket.prefix}") String webSocketPrefix;
 
@@ -26,8 +26,8 @@ public class WebsocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/topics");
-        registry.setApplicationDestinationPrefixes("/app");
+        registry.enableSimpleBroker(salesWebSocketDestination);
+        registry.setApplicationDestinationPrefixes(webSocketPrefix);
     }
 
 
